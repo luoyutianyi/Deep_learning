@@ -4,6 +4,7 @@
 
 import os
 import re
+from lib import ws
 from torch.utils.data import DataLoader,Dataset
 
 
@@ -43,9 +44,14 @@ class ImdbDataset(Dataset):
         return len(self.total_file_path)
 
 
+def collate_fn(batch):
+    content,label = list(zip(*batch))
+    content = [ws.transform(i,max_len=20) for i in content]
+    return content,label
+
 def get_dataloader(train=True):
     imdb_dataset = ImdbDataset(train)
-    data_loader = DataLoader(imdb_dataset,batch_size=2,shuffle=True)
+    data_loader = DataLoader(imdb_dataset,batch_size=2,shuffle=True,collate_fn=collate_fn)
     return data_loader
 
 
