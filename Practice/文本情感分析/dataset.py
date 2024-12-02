@@ -4,7 +4,10 @@
 
 import os
 import re
-from lib import ws
+
+import lib
+from lib import ws,max_len
+import torch
 from torch.utils.data import DataLoader,Dataset
 
 
@@ -36,7 +39,7 @@ class ImdbDataset(Dataset):
         label_str = file_path.split("\\")[-2]
         label = 0 if label_str == "neg" else 1
         #获取内容
-        tokens = tokenlize(open(file_path).read())
+        tokens = tokenlize(open(file_path,encoding="utf-8").read())
         return tokens, label
 
 
@@ -46,12 +49,14 @@ class ImdbDataset(Dataset):
 
 def collate_fn(batch):
     content,label = list(zip(*batch))
-    content = [ws.transform(i,max_len=20) for i in content]
+    content = [ws.transform(i,max_len=max_len) for i in content]
+    content = torch.LongTensor(content)
+    label = torch.LongTensor(label)
     return content,label
 
-def get_dataloader(train=True):
+def get_dataloader(train=True,batch_size=lib.batch_size):
     imdb_dataset = ImdbDataset(train)
-    data_loader = DataLoader(imdb_dataset,batch_size=2,shuffle=True,collate_fn=collate_fn)
+    data_loader = DataLoader(imdb_dataset,batch_size=batch_size,shuffle=True,collate_fn=collate_fn)
     return data_loader
 
 
