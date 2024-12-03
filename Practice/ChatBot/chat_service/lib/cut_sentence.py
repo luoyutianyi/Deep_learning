@@ -6,7 +6,9 @@ from chat_service.lib import stopwords
 import jieba
 import jieba.posseg as psg
 from chat_service.config import config
+import logging
 
+jieba.setLogLevel(logging.INFO)
 
 jieba.load_userdict(config.user_dict_path)
 
